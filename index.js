@@ -1,4 +1,7 @@
-require('dotenv').config();
+if (process.env.NODE_ENV !== "production") {
+    require('dotenv').config();
+}
+
 
 const express = require('express');
 const mongoose = require('mongoose');
@@ -23,7 +26,7 @@ mongoose.connection.on('connected', () => {
 mongoose.connection.on('error', (error) => {
     console.error('Database connection error:', error);
 });
-
+const secret = 'hi'
 // Middleware Configuration
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -36,18 +39,21 @@ app.use(cors({
 }));
 app.use(
     session({
+        name: 'session',
         secret: process.env.SESSION_SECURE_KEY,
         resave: false,
         saveUninitialized: false,
         store: MongoStore.create({
             mongoUrl: process.env.MONGO_URI,
-            collectionName: 'sessions',
+            touchAfter: 24 * 60 * 60,
+            crypto: {
+                secret
+            }
         }),
         cookie: {
-            maxAge: 1000 * 60 * 60 * 24, // 1 day
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production', // Ensure secure cookies in production
-            sameSite: 'Lax', // Use 'Strict' or 'Lax' for cross-site protection
+            expires: Date.now() + 1000 * 60 * 60 * 24 * 7, // 1 week
+            maxAge: 1000 * 60 * 60 * 24 // 1 day
         },
     })
 );
