@@ -13,7 +13,7 @@ const UserRoutes = require('./Routes/user');
 const ReviewRoutes = require('./Routes/review');
 
 const app = express();
-const port = 5050;
+const port = process.env.PORT;
 
 // Database Connection
 mongoose.connect(process.env.MONGO_URI || 'mongodb://0.0.0.0:27017/ecommerce');
