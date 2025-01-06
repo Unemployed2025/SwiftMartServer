@@ -3,6 +3,12 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 class UserControllers {
+
+    /**
+     * Authentication Methods
+     */
+
+    // Register a new user
     static async register(req, res) {
         try {
             const { email, name, password } = req.body;
@@ -25,13 +31,15 @@ class UserControllers {
                 secure: process.env.NODE_ENV === 'production',
                 sameSite: 'None',
                 maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-            })
+            });
+
             res.status(201).json({ message: 'User Created', accessToken });
         } catch (err) {
             res.status(400).json({ error: err.message });
         }
     }
 
+    // Login an existing user
     static async login(req, res) {
         try {
             const { name, password } = req.body;
@@ -57,7 +65,7 @@ class UserControllers {
                 secure: process.env.NODE_ENV === 'production',
                 sameSite: 'None',
                 maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-            })
+            });
 
             res.json({ message: 'Logged in', accessToken });
         } catch (err) {
@@ -65,6 +73,7 @@ class UserControllers {
         }
     }
 
+    // Refresh the access token
     static async refresh(req, res) {
         try {
             const refreshToken = req.cookies.refreshToken;
@@ -81,13 +90,19 @@ class UserControllers {
         }
     }
 
+    // Logout the user
     static logout(req, res) {
         res.clearCookie('refreshToken');
-        res.clearCookie('userId')
+        res.clearCookie('userId');
         res.clearCookie('connect.sid');
         res.json({ message: 'Logged out successfully' });
     }
 
+    /**
+     * User Management Methods
+     */
+
+    // Fetch all users
     static async alluser(req, res) {
         try {
             const user = await User.find({});
@@ -96,6 +111,8 @@ class UserControllers {
             res.status(400).json({ error: err.message });
         }
     }
+
+    // Fetch specific user details
     static async getUserDetails(req, res) {
         try {
             const user = await User.findById(req.params.id).select('-password');
@@ -104,6 +121,12 @@ class UserControllers {
             res.status(400).json({ error: err.message });
         }
     }
+
+    /**
+     * User Furniture Management Methods
+     */
+
+    // Fetch furniture bought by a user
     static async getBoughtFurnitures(req, res) {
         try {
             const user = await User.findById(req.params.id).populate('boughtFurnitures');
@@ -112,6 +135,8 @@ class UserControllers {
             res.status(400).json({ error: err.message });
         }
     }
+
+    // Add furniture to user's bought list
     static async addBoughtFurniture(req, res) {
         try {
             const user = await User.findById(req.params.id);
@@ -122,6 +147,12 @@ class UserControllers {
             res.status(400).json({ error: err.message });
         }
     }
+
+    /**
+     * User Reviews Management Methods
+     */
+
+    // Add a review to the user
     static async addReview(req, res) {
         try {
             const user = await User.findById(req.params.id);
@@ -132,6 +163,8 @@ class UserControllers {
             res.status(400).json({ error: err.message });
         }
     }
+
+    // Fetch reviews of the user
     static async getReviews(req, res) {
         try {
             const user = await User.findById(req.params.id).populate('reviews');
@@ -140,13 +173,71 @@ class UserControllers {
             res.status(400).json({ error: err.message });
         }
     }
+
+    /**
+     * Cart Management Methods
+     */
+
+    // Fetch the user's cart
+    static async getCart(req, res) {
+        try {
+            const user = await User.findById(req.params.id).populate('cart');
+            res.json({ message: 'Giving User Cart', details: user.cart });
+        } catch (err) {
+            res.status(400).json({ error: err.message });
+        }
+    }
+
+    // Empty the user's cart
+    static async emptyCart(req, res) {
+        try {
+            const user = await User.findById(req.params.id);
+            user.cart = [];
+            await user.save();
+            res.json({ message: 'Cart Emptied' });
+        } catch (error) {
+            res.status(400).json({ error: error.message });
+        }
+    }
+
+    // Add an item to the user's cart
+    static async addToCart(req, res) {
+        try {
+            const user = await User.findById(req.params.id);
+            user.cart.push(req.body.furnitureId);
+            await user.save();
+            res.json({ message: 'Furniture Added to Cart' });
+        } catch (error) {
+            res.status(400).json({ error: error.message });
+        }
+    }
+
+    // Remove an item from the user's cart
+    static async removeFromCart(req, res) {
+        try {
+            const user = await User.findById(req.params.id);
+            const index = user.cart.indexOf(req.body.furnitureId);
+            user.cart.splice(index, 1);
+            await user.save();
+            res.json({ message: 'Furniture Removed from Cart' });
+        } catch (error) {
+            res.status(400).json({ error: error.message });
+        }
+    }
+
+    /**
+     * Utility Methods
+     */
+
+    // Fetch the current user's ID from cookies
     static async getCurrentUserId(req, res) {
         try {
             const id = req.cookies.userId;
-            res.json({ message: 'Giving User Id', id: id });
+            res.json({ message: 'Giving User Id', id });
         } catch (err) {
             res.status(400).json({ error: err.message });
         }
     }
 }
+
 module.exports = UserControllers;

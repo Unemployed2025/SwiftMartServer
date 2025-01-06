@@ -13,7 +13,7 @@ const UserRoutes = require('./Routes/user');
 const ReviewRoutes = require('./Routes/review');
 
 const app = express();
-const port = process.env.PORT;
+const port = process.env.PORT || 5050;
 
 // Database Connection
 mongoose.connect(process.env.MONGO_URI || 'mongodb://0.0.0.0:27017/ecommerce');
@@ -54,22 +54,20 @@ app.use(
 );
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-// Initialize Cart Middleware
-app.use((req, res, next) => {
-    if (!req.session.cart) {
-        req.session.cart = [];
-    }
-    next();
-});
+
+
+// API Routes
+app.use('/furniture', FurnitureRoutes);
+app.use('/user', UserRoutes);
+app.use('/review', ReviewRoutes);
+
 
 // Routes
 app.get('/', (req, res) => {
     res.send('Welcome to swift mart api')
-})
-
+});
 app.post('/send-newsletter', async (req, res) => {
     const { email, subject, message } = req.body;
-
     try {
         const msg = {
             to: email,
@@ -78,7 +76,6 @@ app.post('/send-newsletter', async (req, res) => {
             text: message,
             html: `<p>${message}</p>`,
         };
-
         await sgMail.send(msg);
         res.status(200).send({ message: 'Email sent successfully!' });
     } catch (error) {
@@ -87,45 +84,6 @@ app.post('/send-newsletter', async (req, res) => {
     }
 });
 
-// Cart Routes
-app.post('/cart', (req, res) => {
-    const { productid } = req.body;
-    req.session.cart.push(productid);
-    res.status(200).json({ cart: req.session.cart });
-});
-
-app.get('/cart', (req, res) => {
-    res.status(200).json({ cart: req.session.cart });
-});
-
-app.delete('/cart', (req, res) => {
-    const { productid } = req.body;
-    if (!productid) {
-        return res.status(400).json({ error: 'Product ID is required' });
-    }
-    req.session.cart = req.session.cart.filter(item => item !== productid);
-    req.session.save((err) => {
-        if (err) {
-            return res.status(500).json({ error: 'Failed to save session' });
-        }
-        res.status(200).json({ cart: req.session.cart });
-    });
-});
-
-app.delete('/cart/empty', (req, res) => {
-    req.session.cart = [];
-    req.session.save((err) => {
-        if (err) {
-            return res.status(500).json({ error: 'Failed to save session' });
-        }
-        res.status(200).json({ cart: req.session.cart });
-    });
-});
-
-// API Routes
-app.use('/furniture', FurnitureRoutes);
-app.use('/user', UserRoutes);
-app.use('/review', ReviewRoutes);
 
 // Start Server
 app.listen(port, () => {

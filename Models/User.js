@@ -24,6 +24,10 @@ const userSchema = new mongoose.Schema({
     boughtFurnitures: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Furniture'
+    }],
+    cart: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Furniture'
     }]
 }, { timestamps: true });
 
