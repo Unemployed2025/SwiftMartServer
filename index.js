@@ -46,6 +46,9 @@ app.use(
         cookie: {
             maxAge: 1000 * 60 * 60 * 24, // 1 day
             httpOnly: true,
+            secure: true, // Required for production
+            sameSite: 'none', // Required for cross-origin
+            // domain: '.yourdomain.com' // Update this to match your domain
         },
     })
 );
