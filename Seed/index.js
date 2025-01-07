@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const User = require('../Models/User');
 const Furniture = require('../Models/Furniture');
 const Review = require('../Models/Review');
-const imageUrl = "https://random-image-pepebigotes.vercel.app/api/random-image";
+// const imageUrl = "https://random-image-pepebigotes.vercel.app/api/random-image";
 
 const dining = [
     {
@@ -78,6 +78,8 @@ const seedDatabase = async () => {
                 stockLeft: 10,
                 category: 'Living Room',
                 image: sofa,
+                owner: users[0]._id,
+                stockAdded:10,
             },
             {
                 name: 'Dining Table Set',
@@ -87,6 +89,8 @@ const seedDatabase = async () => {
                 stockLeft: 5,
                 category: 'Dining',
                 image: dining,
+                owner: users[0]._id,
+                stockAdded:5,
             },
             {
                 name: 'Queen Bed Frame',
@@ -96,6 +100,8 @@ const seedDatabase = async () => {
                 stockLeft: 7,
                 category: 'Bedroom',
                 image: bed,
+                owner: users[2]._id,
+                stockAdded:7,
             },
         ]);
         console.log('Furnitures created');
@@ -129,6 +135,7 @@ const seedDatabase = async () => {
         // Update Users with Reviews and Bought Furnitures
         for (const user of users) {
             user.reviews = reviews.filter(review => review.byWhom.toString() === user._id.toString()).map(review => review._id);
+            user.listedFurnitures = furnitures.filter(furniture => furniture.owner.toString() === user._id.toString()).map(furniture => furniture._id);
             user.boughtFurnitures = furnitures.map(furniture => furniture._id);
             await user.save();
         }

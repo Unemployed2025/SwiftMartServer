@@ -147,6 +147,28 @@ class UserControllers {
             res.status(400).json({ error: err.message });
         }
     }
+    
+    // Add furniture to user's listed furniture
+    static async addListedFurniture(req, res) {
+        try{
+            const user = await User.findById(req.params.id);
+            user.listedFurnitures.push(req.body.furnitureId);
+            await user.save();
+            res.json({ message: 'Furniture Added Successfully By User' });
+        } catch(err){
+            res.status(400).json({ error: err.message });
+        }
+    }
+
+    // Fetch listed furniture of a user
+    static async getListedFurnitures(req, res) {
+        try{
+            const user  = await User.findById(req.params.id).populate('listedFurnitures');
+            res.json({ message: 'Giving User Listed Furniture', details: user.listedFurnitures });
+        } catch(err){
+            res.status(400).json({ error: err.message });
+        }
+    }
 
     /**
      * User Reviews Management Methods

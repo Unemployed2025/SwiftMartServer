@@ -68,11 +68,13 @@ class FurnitureController {
                 throw new Error('File upload failed');
             }
             else {
-                const { name, details, price, dimension, stockLeft, category } = req.body;
+                const { name, details, price, dimensions, stockLeft, category, stockAdded, owner } = req.body;
                 const images = req.files.map(f => ({ url: f.path, filename: f.filename }));
-                const furniture = new Furniture({ name, price, details, dimensions: dimension, stockLeft, category, image: images });
+                console.log(name, details, price, dimensions, stockLeft, category, stockAdded, owner, images);
+                const furniture = new Furniture({ name, price, details, dimensions, stockLeft, category, image: images, stockAdded, owner });
+                console.log(furniture);
                 await furniture.save();
-                res.status(201).json({ success: true });
+                res.status(201).json({ success: true, id: furniture._id });
             }
         }
         catch (error) {

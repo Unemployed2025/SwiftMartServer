@@ -5,6 +5,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
         unique: true,
+        trim: true
     },
     email: {
         type: String,
@@ -20,6 +21,10 @@ const userSchema = new mongoose.Schema({
     reviews: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Review'
+    }],
+    listedFurnitures: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Furniture'
     }],
     boughtFurnitures: [{
         type: mongoose.Schema.Types.ObjectId,

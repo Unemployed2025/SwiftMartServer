@@ -9,6 +9,7 @@ router.get('/:id', auth, UserControllers.getUserDetails);
 router.get('/:id/getreviews', auth, UserControllers.getReviews);
 router.get('/:id/boughtfurniture', auth, UserControllers.getBoughtFurnitures);
 router.get('/:id/cart', auth, UserControllers.getCart);
+router.get('/:id/listedfurniture', auth, UserControllers.getListedFurnitures);
 
 
 router.post('/register', UserControllers.register);
@@ -19,6 +20,7 @@ router.post('/logout',UserControllers.logout);
 router.patch('/:id/addtocart', auth, UserControllers.addToCart);
 router.patch('/:id/addboughtfurniture', auth, UserControllers.addBoughtFurniture);
 router.patch('/:id/addreview', auth, UserControllers.addReview);
+router.patch('/:id/addnewfurniture', auth, UserControllers.addListedFurniture); 
 
 router.delete('/:id/removefromcart', auth, UserControllers.removeFromCart);
 router.delete('/:id/emptycart', auth, UserControllers.emptyCart);
